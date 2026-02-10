@@ -1,0 +1,44 @@
+map $http_upgrade $connection_upgrade {
+  default upgrade;
+  ''      close;
+}
+
+# default catch-all on 80: drop
+server {
+  listen 80 default_server;
+  listen [::]:80 default_server;
+  server_name _;
+  return 444;
+}
+
+# vps2.belenkiy.ru: redirect http -> https
+server {
+  listen 80;
+  listen [::]:80;
+  server_name vps2.belenkiy.ru;
+  return 301 https://$host$request_uri;
+}
+
+# vps2.belenkiy.ru: https main
+server {
+  listen 443 ssl;
+  listen [::]:443 ssl;
+  server_name vps2.belenkiy.ru;
+
+  charset utf-8;
+
+  ssl_certificate /etc/letsencrypt/live/vps2.belenkiy.ru/fullchain.pem;
+  ssl_certificate_key /etc/letsencrypt/live/vps2.belenkiy.ru/privkey.pem;
+  include /etc/letsencrypt/options-ssl-nginx.conf;
+  ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+
+  include /etc/nginx/snippets/ipecho-root.conf;
+  include /etc/nginx/snippets/portainer-location.conf;
+
+  # kill old service workers (just in case)
+  location = /service-worker.js { add_header Cache-Control "no-store" always; return 404; }
+  location = /sw.js           { add_header Cache-Control "no-store" always; return 404; }
+
+  # everything else
+  location / { return 404; }
+}

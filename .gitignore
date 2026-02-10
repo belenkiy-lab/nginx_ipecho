@@ -1,0 +1,23 @@
+# OS / editor
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+
+# Logs / temp
+*.log
+tmp/
+temp/
+
+# Secrets (just in case)
+*.key
+*.pem
+*.pfx
+*.p12
+*.crt
+*.der
+.env
+.env.*
